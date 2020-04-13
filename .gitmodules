@@ -1,0 +1,3 @@
+[submodule "ScotlandYard"]
+	path = ScotlandYard
+	url = https://github.com/tim-koehler/ScotlandYard.git
