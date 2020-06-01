@@ -1,0 +1,26 @@
+/* You can add global styles to this file, and also import other style files */
+@import "~leaflet/dist/leaflet.css";
+
+.leaflet-div-icon {
+  background: unset;
+  border: unset;
+}
+
+%base-icon {
+  margin-left: -35px;
+  margin-top: -55px;
+}
+
+.bobby {
+  @extend %base-icon;
+  fill: red;
+  height: 100px;
+  width: 80px;
+}
+
+.al-capone {
+  @extend %base-icon;
+  fill: black;
+  height: 100px;
+  width: 80px;
+}

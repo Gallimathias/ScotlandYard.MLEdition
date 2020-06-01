@@ -1,0 +1,32 @@
+section.container{
+  display: grid;
+  grid-template-columns: [left-bar]10% [main-col]auto;
+  grid-template-rows: [main-row]auto [foot-bar]10%;
+}
+
+.container.left {
+  grid-column: left-bar;
+  grid-row: main-row / foot-bar;
+  background-color: blue;
+}
+.container.down {
+  grid-column: left-bar / span 2;
+  grid-row: foot-bar;
+  background-color: blueviolet;
+}
+
+.container.map {
+  width: 114rem;
+  height: 58rem;
+  grid-row: main-row;
+  grid-column: main-col;
+  justify-self: stretch;
+}
+
+.map.frame {
+  height: 100%;
+}
+
+#map {
+  height: 100%;
+}
