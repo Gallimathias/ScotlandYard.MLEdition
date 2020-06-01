@@ -1,9 +1,8 @@
-﻿using System;
+﻿using NonSucking.Framework.Extension.Threading;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Text;
 
 namespace ScotlandYard.Core.IoC
 {
@@ -12,24 +11,39 @@ namespace ScotlandYard.Core.IoC
 
         private readonly Dictionary<Type, TypeInformation> typeInformationRegister;
         private readonly Dictionary<Type, Type> typeRegister;
+        private readonly HashSet<TypeInformation> uncompletedList;
+        private readonly SemaphoreExtended localSemaphore;
 
         public StandaloneTypeContainer()
         {
             typeInformationRegister = new Dictionary<Type, TypeInformation>();
             typeRegister = new Dictionary<Type, Type>();
+            uncompletedList = new HashSet<TypeInformation>();
+            localSemaphore = new SemaphoreExtended(1, 1);
         }
 
         public void Register(Type registrar, Type type, InstanceBehaviour instanceBehaviour)
         {
+            TypeInformation registerInfo = null;
             if (!typeInformationRegister.ContainsKey(type))
-                typeInformationRegister.Add(type, new TypeInformation(this, type, instanceBehaviour));
+            {
+                registerInfo = new TypeInformation(this, type, instanceBehaviour);
+                typeInformationRegister.Add(type, registerInfo);
+            }
 
             typeRegister.Add(registrar, type);
 
-            foreach (var typeInformation in typeInformationRegister.Values.Where(t => !t.Completed))
+            var removelist = new List<TypeInformation>();
+            foreach (var typeInformation in uncompletedList)
             {
                 typeInformation.RecreateUncompleteCtors();
+                if (typeInformation.Completed)
+                    removelist.Add(typeInformation);
             }
+
+            uncompletedList.RemoveWhere(t => removelist.Contains(t));
+            if (registerInfo != null && !registerInfo.Completed)
+                uncompletedList.Add(registerInfo);
         }
         public void Register<T>(InstanceBehaviour instanceBehaviour = InstanceBehaviour.Instance) where T : class
             => Register(typeof(T), typeof(T), instanceBehaviour);
@@ -263,7 +277,7 @@ namespace ScotlandYard.Core.IoC
             {
                 parameters[parameter] = typeInformation;
 
-                if (typeInformation == null)
+                if (typeInformation == null && !parameter.IsOptional)
                     IsComplete = false;
                 else
                     IsComplete = !parameters.Any(info => info.Value == null && !info.Key.IsOptional);

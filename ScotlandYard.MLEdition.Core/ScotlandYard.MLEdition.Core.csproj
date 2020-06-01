@@ -1,7 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="NonSucking.Framework.Extension">
+      <HintPath>..\NonSucking.Framework.Extension.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
 </Project>
