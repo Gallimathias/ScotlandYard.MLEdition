@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -5,11 +6,13 @@ using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using ScotlandYard.Core;
 using ScotlandYard.Core.IoC;
 using ScotlandYard.MLEdition.Core;
 using ScotlandYard.MLEdition.Runtime;
 using ScotlandYard.MLEdition.WebService.Model;
+using ScotlandYard.MLEdition.WebService.Services;
 
 namespace ScotlandYard.MLEdition.WebService
 {
@@ -36,6 +39,36 @@ namespace ScotlandYard.MLEdition.WebService
             {
                 configuration.RootPath = "ClientApp";
             });
+
+            var sessionService = new UserSessionService($"{nameof(ScotlandYard)}.{nameof(ScotlandYard.MLEdition)}.JWT");
+            sessionService.LoadOrCreateKey();
+            services
+                .AddAuthentication(auth =>
+                {
+                    auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(jwt =>
+                {
+                    jwt.SaveToken = true;
+                    jwt.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidateAudience = false,
+                        IssuerSigningKey = sessionService.Key,
+                        ValidIssuer = sessionService.Issuer
+                        
+                    };
+                    jwt.SecurityTokenValidators.Clear();
+                    jwt.SecurityTokenValidators.Add(sessionService);
+
+#if DEBUG
+                    jwt.RequireHttpsMetadata = false;
+#endif
+                });
+
+            TypeContainer.Register<IUserSessionService>(sessionService);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,14 +86,12 @@ namespace ScotlandYard.MLEdition.WebService
             }
 
             app.UseHttpsRedirection();
-            //app.UseStaticFiles();
             app.UseSpaStaticFiles();
-            //if (!env.IsDevelopment())
-            //{
-            //    app.UseSpaStaticFiles();
-            //}
 
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
@@ -78,7 +109,7 @@ namespace ScotlandYard.MLEdition.WebService
                 if (env.IsDevelopment())
                 {
                 }
-            });
+            });            
         }
     }
 }
