@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef } from "@angular/core";
 import * as L from "leaflet";
 import { HttpClient } from "@angular/common/http";
 import { log } from "util";
+import { AuthenticationService } from "../authentication.service";
 
 @Component({
   selector: "app-game-view",
@@ -9,7 +10,10 @@ import { log } from "util";
   styleUrls: ["./game-view.component.scss"],
 })
 export class GameViewComponent implements OnInit {
-  constructor(private client: HttpClient) {
+  constructor(
+    private client: HttpClient,
+    private authService: AuthenticationService
+  ) {
     client.get<MapInfo>("api/map/info?name=map_old").forEach((mapData) => {
       log(mapData.Title);
       let map = L.map("map", {

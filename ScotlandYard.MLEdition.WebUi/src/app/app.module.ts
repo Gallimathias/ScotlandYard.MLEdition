@@ -5,11 +5,10 @@ import { HttpClientModule } from "@angular/common/http";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { GameViewComponent } from "./game-view/game-view.component";
-import { from } from "rxjs";
-
+import { SemiLoginComponent } from "./semi-login/semi-login.component";
 
 @NgModule({
-  declarations: [AppComponent, GameViewComponent],
+  declarations: [AppComponent, GameViewComponent, SemiLoginComponent],
   imports: [BrowserModule, AppRoutingModule, HttpClientModule],
   providers: [],
   bootstrap: [AppComponent],
