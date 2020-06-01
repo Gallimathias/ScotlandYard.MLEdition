@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CreateMap": {
+      "commandName": "Project",
+      "commandLineArgs": "key=this value; key=other value;"
+    }
+  }
+}
